@@ -58,20 +58,112 @@ dir_exists() {
     find / -type d -name "${1%/}" 2>/dev/null | grep -q .
 }
 
-for category in "${order[@]}"; do
-    echo ""
-    printf "${BOLD}==================== %s ====================${RESET}\n" "$category"
-    for tool in ${tools[$category]}; do
-        if is_installed "$tool"; then
-            printf "  ${GREEN}[✔] %s: installed${RESET}\n" "$tool"
-        elif [[ "$tool" == */ ]] && dir_exists "$tool"; then
-            printf "  ${GREEN}[✔] %s: dir exists${RESET}\n" "$tool"
-        elif [[ "$tool" == *.* ]] && file_exists "$tool"; then
-            printf "  ${GREEN}[✔] %s: file exists${RESET}\n" "$tool"
-        else
-            printf "  ${RED}[✘] %s: not installed${RESET}\n" "$tool"
-        fi
-    done
-done
+show_help() {
+    cat << EOF
+BlackCrate - Offensive Security Tool Checker
 
-echo ""
+Usage:
+  ./blackcrate.sh [OPTION]
+
+Options:
+  --installed      Show only installed tools
+  --missing        Show only missing tools
+  --list-all       Show installed and missing tools
+  --help, -h       Display this help message
+
+Examples:
+  ./blackcrate.sh --installed
+  ./blackcrate.sh --missing
+  ./blackcrate.sh --list-all
+  ./blackcrate.sh --help
+
+Legend:
+  [✔] Installed / Exists
+  [✘] Not Installed
+
+EOF
+}
+
+check_installed() {
+    for category in "${order[@]}"; do
+        echo ""
+        printf "${BOLD}==================== %s ====================${RESET}\n" "$category"
+        for tool in ${tools[$category]}; do
+            if is_installed "$tool"; then
+                printf "  ${GREEN}[✔] %s: installed${RESET}\n" "$tool"
+            elif [[ "$tool" == */ ]] && dir_exists "$tool"; then
+                printf "  ${GREEN}[✔] %s: dir exists${RESET}\n" "$tool"
+            elif [[ "$tool" == *.* ]] && file_exists "$tool"; then
+                printf "  ${GREEN}[✔] %s: file exists${RESET}\n" "$tool"
+            else
+                continue
+            fi
+        done
+    done
+
+    echo ""
+}
+
+check_missing() {
+    for category in "${order[@]}"; do
+        echo ""
+        printf "${BOLD}==================== %s ====================${RESET}\n" "$category"
+        for tool in ${tools[$category]}; do
+            if is_installed "$tool"; then
+                continue
+            elif [[ "$tool" == */ ]] && dir_exists "$tool"; then
+                continue
+            elif [[ "$tool" == *.* ]] && file_exists "$tool"; then
+                continue
+            else
+                printf "  ${RED}[✘] %s: not installed${RESET}\n" "$tool"
+            fi
+        done
+    done
+
+    echo ""
+}
+
+check_all() {
+    for category in "${order[@]}"; do
+        echo ""
+        printf "${BOLD}==================== %s ====================${RESET}\n" "$category"
+        for tool in ${tools[$category]}; do
+            if is_installed "$tool"; then
+                printf "  ${GREEN}[✔] %s: installed${RESET}\n" "$tool"
+            elif [[ "$tool" == */ ]] && dir_exists "$tool"; then
+                printf "  ${GREEN}[✔] %s: dir exists${RESET}\n" "$tool"
+            elif [[ "$tool" == *.* ]] && file_exists "$tool"; then
+                printf "  ${GREEN}[✔] %s: file exists${RESET}\n" "$tool"
+            else
+                printf "  ${RED}[✘] %s: not installed${RESET}\n" "$tool"
+            fi
+        done
+    done
+
+    echo ""
+}
+
+main() {
+    case "${1:-}" in
+        --installed)
+            check_installed
+            ;;
+        --missing)
+            check_missing
+            ;;
+        --list-all)
+            check_all
+            ;;
+        --help|-h)
+            show_help
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information."
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
