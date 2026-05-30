@@ -21,6 +21,42 @@ USAGE
   chmod +x blackcrate.sh
   ./blackcrate.sh
 
+FLAGS
+-----
+  --list-all                 Show all tools (installed + missing)
+  --installed                Show only installed tools
+  --missing                  Show only missing tools
+  --category <alias>         Check a specific category by alias
+  --help, -h                 Display this help message
+
+  Examples:
+    ./blackcrate.sh --list-all
+    ./blackcrate.sh --installed
+    ./blackcrate.sh --missing
+    ./blackcrate.sh --category web
+    ./blackcrate.sh --category ad
+
+
+CATEGORY ALIASES
+----------------
+  recon-passive              Reconnaissance - Passive
+  recon-active               Reconnaissance - Active
+  web                        Web Application
+  passwords                  Password & Hash Attacks
+  exploit                    Exploitation
+  ad                         Active Directory & Windows
+  linux-privesc              Linux Privilege Escalation
+  windows-privesc            Windows Privilege Escalation
+  network                    Network & Traffic
+  c2                         Post Exploitation & C2
+  pivot                      Pivoting & Tunneling
+  wireless                   Wireless
+  re                         Reverse Engineering
+  forensics                  Forensics & Steganography
+  crypto                     Encoding & Crypto
+  wordlists                  Wordlists & Payloads
+  utils                      Utility & Workflow
+
 
 OUTPUT
 ------
