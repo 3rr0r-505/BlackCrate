@@ -14,6 +14,10 @@ OVERVIEW
 
 USAGE
 -----
+  # download
+  wget https://raw.githubusercontent.com/3rr0r-505/BlackCrate/refs/heads/main/blackcrate.sh
+
+  # run
   chmod +x blackcrate.sh
   ./blackcrate.sh
 
