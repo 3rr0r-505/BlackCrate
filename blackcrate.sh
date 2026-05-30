@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 declare -A tools
+declare -A category_map
 declare -a order
+declare -a alias_order
 
 order=(
     "Reconnaissance - Passive"
@@ -22,6 +24,44 @@ order=(
     "Wordlists & Payloads"
     "Utility & Workflow"
 )
+
+alias_order=(
+    "recon-passive"
+    "recon-active"
+    "web"
+    "passwords"
+    "exploit"
+    "ad"
+    "linux-privesc"
+    "windows-privesc"
+    "network"
+    "c2"
+    "pivot"
+    "wireless"
+    "re"
+    "forensics"
+    "crypto"
+    "wordlists"
+    "utils"
+)
+
+category_map["recon-passive"]="Reconnaissance - Passive"
+category_map["recon-active"]="Reconnaissance - Active"
+category_map["web"]="Web Application"
+category_map["passwords"]="Password & Hash Attacks"
+category_map["exploit"]="Exploitation"
+category_map["ad"]="Active Directory & Windows"
+category_map["linux-privesc"]="Linux Privilege Escalation"
+category_map["windows-privesc"]="Windows Privilege Escalation"
+category_map["network"]="Network & Traffic"
+category_map["c2"]="Post Exploitation & C2"
+category_map["pivot"]="Pivoting & Tunneling"
+category_map["wireless"]="Wireless"
+category_map["re"]="Reverse Engineering"
+category_map["forensics"]="Forensics & Steganography"
+category_map["crypto"]="Encoding & Crypto"
+category_map["wordlists"]="Wordlists & Payloads"
+category_map["utils"]="Utility & Workflow"
 
 tools["Reconnaissance - Passive"]="whois dig host nslookup theHarvester maltego recon-ng spiderfoot amass dnsx subfinder shodan censys"
 tools["Reconnaissance - Active"]="nmap masscan rustscan netdiscover nuclei nikto whatweb wafw00f sslscan testssl.sh"
@@ -58,30 +98,60 @@ dir_exists() {
     find / -type d -name "${1%/}" 2>/dev/null | grep -q .
 }
 
+find_alias() {
+    local alias=$1
+    if [[ -n "${category_map[$alias]}" ]]; then
+        echo "${category_map[$alias]}"
+    else
+        echo ""
+    fi
+}
+
 show_help() {
-    cat << EOF
-BlackCrate - Offensive Security Tool Checker
+    echo -e "
+    ${BOLD}BlackCrate${RESET} - Offensive Security Tool Checker
 
-Usage:
-  ./blackcrate.sh [OPTION]
+    ${BOLD}USAGE${RESET}
+    ./blackcrate.sh [OPTION] [ARGUMENT]
 
-Options:
-  --installed      Show only installed tools
-  --missing        Show only missing tools
-  --list-all       Show installed and missing tools
-  --help, -h       Display this help message
+    ${BOLD}OPTIONS${RESET}
+    --list-all                 Show all tools (installed + missing)
+    --installed                Show only installed tools
+    --missing                  Show only missing tools
+    --category <alias>         Check a specific category by alias
+    --help, -h                 Display this help message
 
-Examples:
-  ./blackcrate.sh --installed
-  ./blackcrate.sh --missing
-  ./blackcrate.sh --list-all
-  ./blackcrate.sh --help
+    ${BOLD}EXAMPLES${RESET}
+    ./blackcrate.sh
+    ./blackcrate.sh --list-all
+    ./blackcrate.sh --installed
+    ./blackcrate.sh --missing
+    ./blackcrate.sh --category web
+    ./blackcrate.sh --category ad
 
-Legend:
-  [✔] Installed / Exists
-  [✘] Not Installed
+    ${BOLD}CATEGORY ALIASES${RESET}
+    recon-passive              Reconnaissance - Passive
+    recon-active               Reconnaissance - Active
+    web                        Web Application
+    passwords                  Password & Hash Attacks
+    exploit                    Exploitation
+    ad                         Active Directory & Windows
+    linux-privesc              Linux Privilege Escalation
+    windows-privesc            Windows Privilege Escalation
+    network                    Network & Traffic
+    c2                         Post Exploitation & C2
+    pivot                      Pivoting & Tunneling
+    wireless                   Wireless
+    re                         Reverse Engineering
+    forensics                  Forensics & Steganography
+    crypto                     Encoding & Crypto
+    wordlists                  Wordlists & Payloads
+    utils                      Utility & Workflow
 
-EOF
+    ${BOLD}LEGEND${RESET}
+    ${GREEN}[✔]${RESET} installed / exists
+    ${RED}[✘]${RESET} not installed
+    "
 }
 
 check_installed() {
@@ -144,6 +214,36 @@ check_all() {
     echo ""
 }
 
+check_category() {
+    local category
+    category=$(find_alias "$1")
+
+    if [[ -z "$category" ]]; then
+        echo "Unknown category: $1"
+        echo "Valid aliases:"
+        for alias in "${alias_order[@]}"; do
+            printf "  %-20s %s\n" "$alias" "${category_map[$alias]}"
+        done
+        exit 1
+    fi
+
+    echo ""
+    printf "${BOLD}==================== %s ====================${RESET}\n" "$category"
+    for tool in ${tools[$category]}; do
+        if is_installed "$tool"; then
+            printf "  ${GREEN}[✔] %s: installed${RESET}\n" "$tool"
+        elif [[ "$tool" == */ ]] && dir_exists "$tool"; then
+            printf "  ${GREEN}[✔] %s: dir exists${RESET}\n" "$tool"
+        elif [[ "$tool" == *.* ]] && file_exists "$tool"; then
+            printf "  ${GREEN}[✔] %s: file exists${RESET}\n" "$tool"
+        else
+            printf "  ${RED}[✘] %s: not installed${RESET}\n" "$tool"
+        fi
+    done
+
+    echo ""
+}
+
 main() {
     case "${1:-}" in
         --installed)
@@ -157,6 +257,17 @@ main() {
             ;;
         --help|-h)
             show_help
+            ;;
+        --category)
+            if [[ -z "$2" ]]; then
+                echo "Usage: ./blackcrate.sh --category <alias>"
+                echo "Use --help for valid aliases."
+                exit 1
+            fi
+            check_category "$2"
+            ;;
+        "")
+            check_all
             ;;
         *)
             echo "Unknown option: $1"
