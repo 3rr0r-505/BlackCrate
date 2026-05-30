@@ -1,0 +1,64 @@
+blackcrate
+===========
+
+Category-wise installation checker for offensive security tools.
+
+
+OVERVIEW
+--------
+  blackcrate scans your system category-wise and reports what's installed
+  and what's missing across your entire offensive security toolkit.
+  Designed for pentesters and red teamers who want a quick situational
+  awareness check before jumping into an engagement.
+
+
+USAGE
+-----
+  chmod +x blackcrate.sh
+  ./blackcrate.sh
+
+
+OUTPUT
+------
+  ==================== Web Application ====================
+    [✔] ffuf: installed
+    [✔] sqlmap: installed
+    [✘] dalfox: not installed
+
+  ==================== Wordlists & Payloads ====================
+    [✔] wordlists/: dir exists
+    [✔] rockyou.txt: file exists
+    [✘] seclists/: not found
+
+
+CATEGORIES
+----------
+  Reconnaissance - Passive      whois, amass, subfinder, shodan, censys
+  Reconnaissance - Active       nmap, masscan, nuclei, nikto, sslscan
+  Web Application               burpsuite, ffuf, sqlmap, caido, dalfox
+  Password & Hash Attacks       hashcat, john, hydra, cewl, crunch
+  Exploitation                  msfconsole, msfvenom, searchsploit
+  Active Directory & Windows    impacket suite, bloodhound, crackmapexec, evil-winrm
+  Linux Privilege Escalation    peass-ng, lse.sh, pspy
+  Windows Privilege Escalation  peass-ng, wesng
+  Network & Traffic             wireshark, responder, bettercap, mitm6
+  Post Exploitation & C2        sliver, havoc, empire
+  Pivoting & Tunneling          chisel, ligolo-ng, proxychains, socat
+  Wireless                      aircrack-ng, hcxdumptool, wifite, kismet
+  Reverse Engineering           ghidra, radare2, gdb, binwalk
+  Forensics & Steganography     volatility3, steghide, zsteg, autopsy
+  Encoding & Crypto             openssl, base64, xxd
+  Wordlists & Payloads          wordlists, seclists, rockyou
+  Utility & Workflow            tmux, curl, jq, python3
+
+
+DETECTION
+---------
+  binaries / cli tools       command -v + whereis -b
+  scripts / files            find by filename (.sh, .py, .txt, etc.)
+  directories                find by directory name (trailing /)
+
+
+LICENSE
+-------
+  MIT License
