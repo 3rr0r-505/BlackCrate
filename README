@@ -6,10 +6,15 @@ Category-wise installation checker for offensive security tools.
 
 OVERVIEW
 --------
-  blackcrate scans your system category-wise and reports what's installed
+  BlackCrate scans your system category-wise and reports what's installed
   and what's missing across your entire offensive security toolkit.
   Designed for pentesters and red teamers who want a quick situational
   awareness check before jumping into an engagement.
+
+  Note: BlackCrate is a checker, not an installer. Installation is intentionally
+  left to the user — automated installs can break customised environments,
+  conflict with existing dependencies, or bypass tools that require manual setup.
+  BlackCrate tells you what's missing; you decide what to install and how.
 
 
 USAGE
