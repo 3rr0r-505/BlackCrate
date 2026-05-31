@@ -78,7 +78,7 @@ OUTPUT
 
 CATEGORIES
 ----------
-  Reconnaissance - Passive        whois, dig, host, nslookup, theHarvester,
+  Reconnaissance - Passive      whois, dig, host, nslookup, theHarvester,
                                 maltego, recon-ng, spiderfoot, amass, dnsx,
                                 subfinder, shodan, censys
 
