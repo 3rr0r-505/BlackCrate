@@ -86,27 +86,6 @@ RED='\033[0;31m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
-is_installed() {
-    command -v "$1" &>/dev/null || whereis -b "$1" | grep -q "/$1"
-}
-
-file_exists() {
-    find / -type f -name "$1" 2>/dev/null | grep -q .
-}
-
-dir_exists() {
-    find / -type d -name "${1%/}" 2>/dev/null | grep -q .
-}
-
-find_alias() {
-    local alias=$1
-    if [[ -n "${category_map[$alias]}" ]]; then
-        echo "${category_map[$alias]}"
-    else
-        echo ""
-    fi
-}
-
 show_help() {
     echo -e "
     ${BOLD}BlackCrate${RESET} - Offensive Security Tool Checker
@@ -119,6 +98,7 @@ show_help() {
     --installed                Show only installed tools
     --missing                  Show only missing tools
     --category <alias>         Check a specific category by alias
+    --tools                    Show category-wise tools list
     --help, -h                 Display this help message
 
     ${BOLD}EXAMPLES${RESET}
@@ -152,6 +132,83 @@ show_help() {
     ${GREEN}[✔]${RESET} installed / exists
     ${RED}[✘]${RESET} not installed
     "
+}
+
+show_tools() {
+    echo -e "
+    Reconnaissance - Passive        whois, dig, host, nslookup, theHarvester,
+                                    maltego, recon-ng, spiderfoot, amass, dnsx,
+                                    subfinder, shodan, censys
+
+    Reconnaissance - Active         nmap, masscan, rustscan, netdiscover, nuclei,
+                                    nikto, whatweb, wafw00f, sslscan, testssl.sh
+
+    Web Application                 burpsuite, ffuf, gobuster, feroxbuster,
+                                    dirsearch, sqlmap, xsstrike, arjun, wfuzz,
+                                    caido, jwt_tool, dalfox
+
+    Password & Hash Attacks         hashcat, john, hydra, medusa, cewl, crunch,
+                                    cupp, mentalist, hash-identifier, hashid
+
+    Exploitation                    msfconsole, msfvenom, searchsploit
+
+    Active Directory & Windows      psexec.py, secretsdump.py, GetUserSPNs.py,
+                                    GetNPUsers.py, wmiexec.py, smbclient.py,
+                                    mimikatz.py, bloodhound, sharphound,
+                                    bloodhound-python, crackmapexec, netexec,
+                                    evil-winrm, kerbrute, kerberoast,
+                                    ldapdomaindump, enum4linux, enum4linux-ng,
+                                    smbmap, rpcclient, powerview, rubeus
+
+    Linux Privilege Escalation      peass-ng/, lse.sh, pspy
+
+    Windows Privilege Escalation    peass-ng/, powerup, wesng
+
+    Network & Traffic               wireshark, tshark, tcpdump, responder,
+                                    mitm6, bettercap, netcat, ncat
+
+    Post Exploitation & C2          sliver, havoc, powershell-empire, cobalt-strike
+
+    Pivoting & Tunneling            chisel, ligolo-ng, sshuttle, proxychains,
+                                    socat, plink
+
+    Wireless                        aircrack-ng, airodump-ng, aireplay-ng,
+                                    hcxdumptool, hcxtools, wifite, kismet
+
+    Reverse Engineering             ghidra, radare2, cutter, gdb, pwndbg, peda,
+                                    binwalk, strings, file, exiftool, ltrace, strace
+
+    Forensics & Steganography       volatility3, autopsy, foremost, scalpel,
+                                    steghide, zsteg, exiftool
+
+    Encoding & Crypto               openssl, base64, xxd, od
+
+    Wordlists & Payloads            wordlists/, seclists/, rockyou.txt
+
+    Utility & Workflow              tmux, curl, wget, jq, python3, php, ruby,
+                                    base64, xxd, scp, rsync, ssh
+    "
+}
+
+is_installed() {
+    command -v "$1" &>/dev/null || whereis -b "$1" | grep -q "/$1"
+}
+
+file_exists() {
+    find / -type f -name "$1" 2>/dev/null | grep -q .
+}
+
+dir_exists() {
+    find / -type d -name "${1%/}" 2>/dev/null | grep -q .
+}
+
+find_alias() {
+    local alias=$1
+    if [[ -n "${category_map[$alias]}" ]]; then
+        echo "${category_map[$alias]}"
+    else
+        echo ""
+    fi
 }
 
 check_installed() {
@@ -254,6 +311,9 @@ main() {
             ;;
         --list-all)
             check_all
+            ;;
+        --tools)
+            show_tools
             ;;
         --help|-h)
             show_help
