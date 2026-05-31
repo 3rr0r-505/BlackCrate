@@ -32,6 +32,7 @@ FLAGS
   --installed                Show only installed tools
   --missing                  Show only missing tools
   --category <alias>         Check a specific category by alias
+  --tools                    Show category-wise tools list
   --help, -h                 Display this help message
 
   Examples:
