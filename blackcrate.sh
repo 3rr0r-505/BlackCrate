@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
 
+# blackcrate - offensive security tool checker
+# checks installation status of offsec tools category-wise
+# not an installer — detection only
+
+# ─── data structures ─────────────────────────────────────────────────────────
+# separate ordered arrays for categories and aliases to preserve output order
+# bash associative arrays are unordered — never iterate them directly for display
+
 declare -A tools
 declare -A category_map
 declare -a order
 declare -a alias_order
+
+# ─── category order ───────────────────────────────────────────────────────────
+# defines the display order of categories in output
 
 order=(
     "Reconnaissance - Passive"
@@ -25,6 +36,9 @@ order=(
     "Utility & Workflow"
 )
 
+# ─── alias order ──────────────────────────────────────────────────────────────
+# mirrors category order — used to display aliases in consistent order
+
 alias_order=(
     "recon-passive"
     "recon-active"
@@ -45,6 +59,9 @@ alias_order=(
     "utils"
 )
 
+# ─── alias -> category map ────────────────────────────────────────────────────
+# maps short CLI aliases to full category names for --category flag
+
 category_map["recon-passive"]="Reconnaissance - Passive"
 category_map["recon-active"]="Reconnaissance - Active"
 category_map["web"]="Web Application"
@@ -62,6 +79,12 @@ category_map["forensics"]="Forensics & Steganography"
 category_map["crypto"]="Encoding & Crypto"
 category_map["wordlists"]="Wordlists & Payloads"
 category_map["utils"]="Utility & Workflow"
+
+# ─── tool list ────────────────────────────────────────────────────────────────
+# naming convention:
+#   plain name   -> binary/cli tool  (detected via command -v + whereis)
+#   name.ext     -> script or file   (detected via find by filename)
+#   name/        -> directory        (detected via find by dirname)
 
 tools["Reconnaissance - Passive"]="whois dig host nslookup theHarvester maltego recon-ng spiderfoot amass dnsx subfinder shodan censys"
 tools["Reconnaissance - Active"]="nmap masscan rustscan netdiscover nuclei nikto whatweb wafw00f sslscan testssl.sh"
@@ -81,10 +104,16 @@ tools["Encoding & Crypto"]="openssl base64 xxd od"
 tools["Wordlists & Payloads"]="wordlists/ seclists/ rockyou.txt"
 tools["Utility & Workflow"]="tmux curl wget jq python3 php ruby base64 xxd scp rsync ssh"
 
+# ─── colors ───────────────────────────────────────────────────────────────────
+
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 BOLD='\033[1m'
 RESET='\033[0m'
+
+# ─── display & help ───────────────────────────────────────────────────────────
+# show_help  -> usage, flags, aliases, legend
+# show_tools -> category-wise tool list without installation check
 
 show_help() {
     echo -e "
@@ -190,6 +219,12 @@ show_tools() {
     "
 }
 
+# ─── detection ────────────────────────────────────────────────────────────────
+# is_installed  -> checks binaries via command -v and whereis -b
+# file_exists   -> checks scripts/files via find by exact filename
+# dir_exists    -> checks directories via find by dirname (strips trailing /)
+# find_alias    -> resolves short alias to full category name
+
 is_installed() {
     command -v "$1" &>/dev/null || whereis -b "$1" | grep -q "/$1"
 }
@@ -210,6 +245,14 @@ find_alias() {
         echo ""
     fi
 }
+
+# ─── output functions ─────────────────────────────────────────────────────────
+# check_all       -> show installed + missing (default)
+# check_installed -> show only installed
+# check_missing   -> show only missing
+# check_category  -> show single category by alias
+# show_tools      -> list all tools category-wise without checking
+# show_help       -> usage, flags, aliases, legend
 
 check_installed() {
     for category in "${order[@]}"; do
@@ -300,6 +343,9 @@ check_category() {
 
     echo ""
 }
+
+# ─── entry point ──────────────────────────────────────────────────────────────
+# no args defaults to check_all
 
 main() {
     case "${1:-}" in
