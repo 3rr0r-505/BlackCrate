@@ -128,7 +128,7 @@ CATEGORIES
 
   Wordlists & Payloads          wordlists/, seclists/, rockyou.txt
 
-  Utility & Workflow            tmux, curl, wget, jq, python3, php, ruby,
+  Utility & Workflow            tmux, codium, curl, wget, jq, python3, php, ruby,
                                 base64, xxd, scp, rsync, ssh
 
 

@@ -92,17 +92,17 @@ tools["Web Application"]="burpsuite ffuf gobuster feroxbuster dirsearch sqlmap x
 tools["Password & Hash Attacks"]="hashcat john hydra medusa cewl crunch cupp mentalist hash-identifier hashid"
 tools["Exploitation"]="msfconsole msfvenom searchsploit"
 tools["Active Directory & Windows"]="psexec.py secretsdump.py GetUserSPNs.py GetNPUsers.py wmiexec.py smbclient.py mimikatz.py bloodhound sharphound bloodhound-python crackmapexec netexec evil-winrm kerbrute kerberoast ldapdomaindump enum4linux enum4linux-ng smbmap rpcclient powerview rubeus"
-tools["Linux Privilege Escalation"]="peass-ng/ lse.sh pspy"
-tools["Windows Privilege Escalation"]="peass-ng/ powerup wesng"
+tools["Linux Privilege Escalation"]="peass-ng/ lse.sh pspy-binaries/"
+tools["Windows Privilege Escalation"]="peass-ng/ wesng powersploit/"
 tools["Network & Traffic"]="wireshark tshark tcpdump responder mitm6 bettercap netcat ncat"
-tools["Post Exploitation & C2"]="sliver havoc powershell-empire cobalt-strike"
+tools["Post Exploitation & C2"]="sliver havoc empire cobalt-strike"
 tools["Pivoting & Tunneling"]="chisel ligolo-ng sshuttle proxychains socat plink"
 tools["Wireless"]="aircrack-ng airodump-ng aireplay-ng hcxdumptool hcxtools wifite kismet"
 tools["Reverse Engineering"]="ghidra radare2 cutter gdb pwndbg peda binwalk strings file exiftool ltrace strace"
 tools["Forensics & Steganography"]="volatility3 autopsy foremost scalpel steghide zsteg exiftool"
 tools["Encoding & Crypto"]="openssl base64 xxd od"
 tools["Wordlists & Payloads"]="wordlists/ seclists/ rockyou.txt"
-tools["Utility & Workflow"]="tmux curl wget jq python3 php ruby base64 xxd scp rsync ssh"
+tools["Utility & Workflow"]="tmux codium curl wget jq python3 php ruby base64 xxd scp rsync ssh"
 
 # ─── colors ───────────────────────────────────────────────────────────────────
 
