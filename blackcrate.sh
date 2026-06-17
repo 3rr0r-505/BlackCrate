@@ -135,7 +135,7 @@ show_help() {
     ${BOLD}BlackCrate${RESET} - Offensive Security Tool Checker
 
     ${BOLD}USAGE${RESET}
-    blackcrate.sh [OPTION] [ARGUMENT]
+    blackcrate [OPTION] [ARGUMENT]
 
     ${BOLD}OPTIONS${RESET}
     --init                     Install blackcrate to system PATH
