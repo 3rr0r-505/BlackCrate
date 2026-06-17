@@ -565,8 +565,10 @@ main() {
             check_all
             ;;
         *)
+            show_banner
             echo "Unknown option: $1"
             echo "Use --help for usage information."
+            echo ""
             exit 1
             ;;
     esac
