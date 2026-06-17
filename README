@@ -15,32 +15,44 @@ OVERVIEW
   left to the user — automated installs can break customised environments,
   conflict with existing dependencies, or bypass tools that require manual setup.
   BlackCrate tells you what's missing; you decide what to install and how.
+    
+  The --init/--upgrade/--purge flags only manage blackcrate itself on your
+  system PATH; everything else stays manual by design.
 
 
 USAGE
 -----
-  # download
+  # quick install
   wget https://raw.githubusercontent.com/3rr0r-505/BlackCrate/refs/heads/main/blackcrate.sh
-
-  # run
   chmod +x blackcrate.sh
-  ./blackcrate.sh
+  ./blackcrate.sh --init
+
+  # after install, run from anywhere
+  blackcrate
+
 
 FLAGS
 -----
+  --init                     Install blackcrate to system PATH
+  --upgrade                  Upgrade to the latest version from GitHub
+  --purge                    Remove blackcrate from the system
   --list-all                 Show all tools (installed + missing)
   --installed                Show only installed tools
   --missing                  Show only missing tools
   --category <alias>         Check a specific category by alias
   --tools                    Show category-wise tools list
   --help, -h                 Display this help message
+  --version, -v              Show installed version
 
   Examples:
-    ./blackcrate.sh --list-all
-    ./blackcrate.sh --installed
-    ./blackcrate.sh --missing
-    ./blackcrate.sh --category web
-    ./blackcrate.sh --category ad
+    blackcrate --init
+    blackcrate --upgrade
+    blackcrate --purge
+    blackcrate --list-all
+    blackcrate --installed
+    blackcrate --missing
+    blackcrate --category web
+    blackcrate --category ad
 
 
 CATEGORY ALIASES

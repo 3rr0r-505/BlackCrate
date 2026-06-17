@@ -4,6 +4,8 @@
 # checks installation status of offsec tools category-wise
 # not an installer — detection only
 
+VERSION="v1.0.3"
+
 # ─── data structures ─────────────────────────────────────────────────────────
 # separate ordered arrays for categories and aliases to preserve output order
 # bash associative arrays are unordered — never iterate them directly for display
@@ -112,31 +114,51 @@ BOLD='\033[1m'
 RESET='\033[0m'
 
 # ─── display & help ───────────────────────────────────────────────────────────
+# show_banner -> ASCII art logo with bold version tag right-aligned beneath it
 # show_help  -> usage, flags, aliases, legend
 # show_tools -> category-wise tool list without installation check
 
+show_banner() {
+    echo "__________.__                 __   _________                __          ";
+    echo "\\______   \\  | _____    ____ |  | _\\_   ___ \\____________ _/  |_  ____  ";
+    echo " |    |  _/  | \\__  \\ _/ ___\\|  |/ /    \\  \\/\\_  __ \\__  \\\\   __\\/ __ \\ ";
+    echo " |    |   \\  |__/ __ \\\\  \\___|    <\\     \\____|  | \\// __ \\|  | \\  ___/ ";
+    echo " |______  /____(____  /\\___  >__|_ \\\\______  /|__|  (____  /__|  \\___  >";
+    echo "        \\/          \\/     \\/     \\/       \\/            \\/          \\/ ";
+    printf -v padded "%71s" "$VERSION"
+    echo -e "${BOLD}${padded}${RESET}"
+}
+
 show_help() {
+    show_banner
     echo -e "
     ${BOLD}BlackCrate${RESET} - Offensive Security Tool Checker
 
     ${BOLD}USAGE${RESET}
-    ./blackcrate.sh [OPTION] [ARGUMENT]
+    blackcrate.sh [OPTION] [ARGUMENT]
 
     ${BOLD}OPTIONS${RESET}
+    --init                     Install blackcrate to system PATH
+    --upgrade                  Upgrade to the latest version from GitHub
+    --purge                    Remove blackcrate from system
     --list-all                 Show all tools (installed + missing)
     --installed                Show only installed tools
     --missing                  Show only missing tools
     --category <alias>         Check a specific category by alias
     --tools                    Show category-wise tools list
     --help, -h                 Display this help message
+    --version, -v              Show installed version
 
     ${BOLD}EXAMPLES${RESET}
-    ./blackcrate.sh
-    ./blackcrate.sh --list-all
-    ./blackcrate.sh --installed
-    ./blackcrate.sh --missing
-    ./blackcrate.sh --category web
-    ./blackcrate.sh --category ad
+    blackcrate.sh
+    blackcrate.sh --list-all
+    blackcrate.sh --installed
+    blackcrate.sh --missing
+    blackcrate.sh --category web
+    blackcrate.sh --category ad
+    blackcrate --init
+    blackcrate --upgrade
+    blackcrate --purge
 
     ${BOLD}CATEGORY ALIASES${RESET}
     recon-passive              Reconnaissance - Passive
@@ -219,6 +241,104 @@ show_tools() {
     "
 }
 
+# ─── self-management ──────────────────────────────────────────────────────────
+# _init_self     -> installs blackcrate to a writable system bin dir in PATH
+# _purge_self    -> removes the installed blackcrate binary
+# _upgrade_self  -> fetches latest version from GitHub, replaces if newer
+
+_init_self(){
+    PREFERRED=("/usr/local/bin" "/usr/bin" "/bin" "/usr/local/sbin")
+    INSTALL_DIR=""
+
+    for dir in "${PREFERRED[@]}"; do
+        if [[ ":$PATH:" == *":$dir:"* ]]; then
+            INSTALL_DIR="$dir"
+            break
+        fi
+    done
+
+    if [[ -z "$INSTALL_DIR" ]]; then
+        echo "Error: None of the standard bin directories found in PATH"
+        exit 1
+    fi
+
+    DEST="$INSTALL_DIR/blackcrate"
+
+    if [[ -f "$DEST" ]]; then
+        echo "Already installed at $DEST. Use --upgrade to update."
+        exit 0
+    fi
+
+    sudo cp "$0" "$DEST"
+    sudo chmod +x "$DEST"
+    sudo chown "$USER:$USER" "$DEST"
+    echo "Installed → $DEST"
+    exit 0
+}
+
+_purge_self() {
+    PREFERRED=("/usr/local/bin" "/usr/bin" "/bin" "/usr/local/sbin")
+
+    for dir in "${PREFERRED[@]}"; do
+        if [[ -f "$dir/blackcrate" ]]; then
+            sudo rm "$dir/blackcrate"
+            echo "Removed → $dir/blackcrate"
+            exit 0
+        fi
+    done
+
+    echo "blackcrate is not installed."
+    exit 1
+}
+
+_upgrade_self() {
+    PREFERRED=("/usr/local/bin" "/usr/bin" "/bin" "/usr/local/sbin")
+    DEST=""
+
+    for dir in "${PREFERRED[@]}"; do
+        if [[ -f "$dir/blackcrate" ]]; then
+            DEST="$dir/blackcrate"
+            break
+        fi
+    done
+
+    if [[ -z "$DEST" ]]; then
+        echo "blackcrate is not installed. Run --init first."
+        exit 1
+    fi
+
+    TMP="/tmp/blackcrate.tmp"
+    REMOTE_URL="https://raw.githubusercontent.com/3rr0r-505/BlackCrate/refs/heads/main/blackcrate.sh"
+
+    echo "Checking for updates..."
+    if ! curl -fsSL "$REMOTE_URL" -o "$TMP"; then
+        echo "Error: Failed to fetch latest version."
+        rm -f "$TMP"
+        exit 1
+    fi
+
+    REMOTE_VERSION=$(grep "^VERSION=" "$TMP" | cut -d'=' -f2 | tr -d '"')
+
+    if [[ -z "$REMOTE_VERSION" ]]; then
+        echo "Error: Could not determine remote version."
+        rm -f "$TMP"
+        exit 1
+    fi
+
+    if [[ "$REMOTE_VERSION" == "$VERSION" ]]; then
+        echo "Already up to date ($VERSION)."
+        rm -f "$TMP"
+        exit 0
+    fi
+
+    sudo cp "$TMP" "$DEST"
+    sudo chmod +x "$DEST"
+    sudo chown "$USER:$USER" "$DEST"
+    rm -f "$TMP"
+    echo "Upgraded $VERSION → $REMOTE_VERSION"
+    exit 0
+}
+
 # ─── detection ────────────────────────────────────────────────────────────────
 # is_installed  -> checks binaries via command -v and whereis -b
 # file_exists   -> checks scripts/files via find by exact filename
@@ -255,6 +375,7 @@ find_alias() {
 # show_help       -> usage, flags, aliases, legend
 
 check_installed() {
+    show_banner
     for category in "${order[@]}"; do
         echo ""
         printf "${BOLD}==================== %s ====================${RESET}\n" "$category"
@@ -275,6 +396,7 @@ check_installed() {
 }
 
 check_missing() {
+    show_banner
     for category in "${order[@]}"; do
         echo ""
         printf "${BOLD}==================== %s ====================${RESET}\n" "$category"
@@ -295,6 +417,7 @@ check_missing() {
 }
 
 check_all() {
+    show_banner
     for category in "${order[@]}"; do
         echo ""
         printf "${BOLD}==================== %s ====================${RESET}\n" "$category"
@@ -315,6 +438,7 @@ check_all() {
 }
 
 check_category() {
+    show_banner
     local category
     category=$(find_alias "$1")
 
@@ -349,6 +473,15 @@ check_category() {
 
 main() {
     case "${1:-}" in
+        --init)
+            _init_self
+            ;;
+        --purge)
+            _purge_self
+            ;;
+        --upgrade)
+            _upgrade_self
+            ;;
         --installed)
             check_installed
             ;;
@@ -363,6 +496,9 @@ main() {
             ;;
         --help|-h)
             show_help
+            ;;
+        --version|-v)
+            show_banner
             ;;
         --category)
             if [[ -z "$2" ]]; then
