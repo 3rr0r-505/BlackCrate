@@ -259,6 +259,7 @@ _init_self(){
 
     if [[ -z "$INSTALL_DIR" ]]; then
         echo "Error: None of the standard bin directories found in PATH"
+        echo ""
         exit 1
     fi
 
@@ -266,6 +267,7 @@ _init_self(){
 
     if [[ -f "$DEST" ]]; then
         echo "Already installed at $DEST. Use --upgrade to update."
+        echo ""
         exit 0
     fi
 
@@ -273,6 +275,7 @@ _init_self(){
     sudo chmod +x "$DEST"
     sudo chown "$USER:$USER" "$DEST"
     echo "Installed → $DEST"
+    echo ""
     exit 0
 }
 
@@ -283,11 +286,13 @@ _purge_self() {
         if [[ -f "$dir/blackcrate" ]]; then
             sudo rm "$dir/blackcrate"
             echo "Removed → $dir/blackcrate"
+            echo ""
             exit 0
         fi
     done
 
     echo "blackcrate is not installed."
+    echo ""
     exit 1
 }
 
@@ -304,6 +309,7 @@ _upgrade_self() {
 
     if [[ -z "$DEST" ]]; then
         echo "blackcrate is not installed. Run --init first."
+        echo ""
         exit 1
     fi
 
@@ -313,6 +319,7 @@ _upgrade_self() {
     echo "Checking for updates..."
     if ! curl -fsSL "$REMOTE_URL" -o "$TMP"; then
         echo "Error: Failed to fetch latest version."
+        echo ""
         rm -f "$TMP"
         exit 1
     fi
@@ -321,12 +328,14 @@ _upgrade_self() {
 
     if [[ -z "$REMOTE_VERSION" ]]; then
         echo "Error: Could not determine remote version."
+        echo ""
         rm -f "$TMP"
         exit 1
     fi
 
     if diff -q "$DEST" "$TMP" &>/dev/null; then
         echo "Already up to date."
+        echo ""
         rm -f "$TMP"
         exit 0
     fi
@@ -336,6 +345,7 @@ _upgrade_self() {
     sudo chown "$USER:$USER" "$DEST"
     rm -f "$TMP"
     echo "Upgraded $VERSION → $REMOTE_VERSION"
+    echo ""
     exit 0
 }
 
