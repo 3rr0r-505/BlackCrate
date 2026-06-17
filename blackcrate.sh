@@ -4,7 +4,7 @@
 # checks installation status of offsec tools category-wise
 # not an installer — detection only
 
-VERSION="v1.0.4"
+VERSION="v1.1.0"
 
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
     echo "Error: Do not source this script. Run it directly."
@@ -252,8 +252,30 @@ show_tools() {
 # _purge_self    -> removes the installed blackcrate binary
 # _upgrade_self  -> fetches latest version from GitHub, replaces if newer
 
+_fetch() {
+    local url="$1" dest="$2"
+    if command -v curl &>/dev/null; then
+        curl -fsSL "$url" -o "$dest"
+    elif command -v wget &>/dev/null; then
+        wget -q "$url" -O "$dest"
+    else
+        echo "Error: Neither curl nor wget is available."
+        echo ""
+        return 1
+    fi
+}
+
+_check_sudo() {
+    if ! command -v sudo &>/dev/null; then
+        echo "Error: sudo is required but not available on this system."
+        echo ""
+        exit 1
+    fi
+}
+
 _init_self(){
     show_banner
+    _check_sudo
     PREFERRED=("/usr/local/bin" "/usr/bin" "/bin" "/usr/local/sbin")
     INSTALL_DIR=""
 
@@ -289,8 +311,10 @@ _init_self(){
 
 _purge_self() {
     show_banner
+    _check_sudo
     PREFERRED=("/usr/local/bin" "/usr/bin" "/bin" "/usr/local/sbin")
 
+    rm -f "/tmp/blackcrate.tmp"
     for dir in "${PREFERRED[@]}"; do
         if [[ -f "$dir/blackcrate" ]]; then
             sudo rm "$dir/blackcrate"
@@ -307,6 +331,7 @@ _purge_self() {
 
 _upgrade_self() {
     show_banner
+    _check_sudo
     PREFERRED=("/usr/local/bin" "/usr/bin" "/bin" "/usr/local/sbin")
     DEST=""
 
@@ -327,8 +352,15 @@ _upgrade_self() {
     REMOTE_URL="https://raw.githubusercontent.com/3rr0r-505/BlackCrate/refs/heads/main/blackcrate.sh"
 
     echo "Checking for updates..."
-    if ! curl -fsSL "$REMOTE_URL" -o "$TMP"; then
+    if ! _fetch "$REMOTE_URL" "$TMP"; then
         echo "Error: Failed to fetch latest version."
+        echo ""
+        rm -f "$TMP"
+        exit 1
+    fi
+
+    if [[ ! -s "$TMP" ]] || ! bash -n "$TMP" &>/dev/null; then
+        echo "Error: Downloaded file is invalid or corrupted."
         echo ""
         rm -f "$TMP"
         exit 1
@@ -468,6 +500,7 @@ check_category() {
         for alias in "${alias_order[@]}"; do
             printf "  %-20s %s\n" "$alias" "${category_map[$alias]}"
         done
+        echo ""
         exit 1
     fi
 
@@ -522,7 +555,7 @@ main() {
             ;;
         --category)
             if [[ -z "$2" ]]; then
-                echo "Usage: ./blackcrate.sh --category <alias>"
+                echo "Usage: blackcrate.sh --category <alias>"
                 echo "Use --help for valid aliases."
                 exit 1
             fi
