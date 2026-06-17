@@ -325,8 +325,8 @@ _upgrade_self() {
         exit 1
     fi
 
-    if [[ "$REMOTE_VERSION" == "$VERSION" ]]; then
-        echo "Already up to date ($VERSION)."
+    if diff -q "$DEST" "$TMP" &>/dev/null; then
+        echo "Already up to date."
         rm -f "$TMP"
         exit 0
     fi
