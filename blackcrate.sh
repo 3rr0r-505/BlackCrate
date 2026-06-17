@@ -6,6 +6,11 @@
 
 VERSION="v1.0.4"
 
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+    echo "Error: Do not source this script. Run it directly."
+    return 1
+fi
+
 # ─── data structures ─────────────────────────────────────────────────────────
 # separate ordered arrays for categories and aliases to preserve output order
 # bash associative arrays are unordered — never iterate them directly for display
@@ -276,8 +281,9 @@ _init_self(){
     sudo cp "$0" "$DEST"
     sudo chmod +x "$DEST"
     sudo chown "$USER:$USER" "$DEST"
-    echo "Installed → $DEST"
+    echo "BlackCrate Installed Successfully → $DEST"
     echo ""
+    rm -f "$0"
     exit 0
 }
 
@@ -288,13 +294,13 @@ _purge_self() {
     for dir in "${PREFERRED[@]}"; do
         if [[ -f "$dir/blackcrate" ]]; then
             sudo rm "$dir/blackcrate"
-            echo "Removed → $dir/blackcrate"
+            echo "Blackcrate Removed → $dir/blackcrate"
             echo ""
             exit 0
         fi
     done
 
-    echo "blackcrate is not installed."
+    echo "Blackcrate is not installed."
     echo ""
     exit 1
 }
@@ -312,7 +318,7 @@ _upgrade_self() {
     done
 
     if [[ -z "$DEST" ]]; then
-        echo "blackcrate is not installed. Run --init first."
+        echo "Blackcrate is not installed. Run --init first."
         echo ""
         exit 1
     fi
@@ -348,7 +354,7 @@ _upgrade_self() {
     sudo chmod +x "$DEST"
     sudo chown "$USER:$USER" "$DEST"
     rm -f "$TMP"
-    echo "Upgraded $VERSION → $REMOTE_VERSION"
+    echo "BlackCrate Upgraded → $REMOTE_VERSION"
     echo ""
     exit 0
 }
