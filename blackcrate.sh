@@ -4,7 +4,7 @@
 # checks installation status of offsec tools category-wise
 # not an installer — detection only
 
-VERSION="v1.0.3"
+VERSION="v1.0.4"
 
 # ─── data structures ─────────────────────────────────────────────────────────
 # separate ordered arrays for categories and aliases to preserve output order
