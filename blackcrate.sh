@@ -186,6 +186,7 @@ show_help() {
 }
 
 show_tools() {
+    show_banner
     echo -e "
     Reconnaissance - Passive        whois, dig, host, nslookup, theHarvester,
                                     maltego, recon-ng, spiderfoot, amass, dnsx,
@@ -247,6 +248,7 @@ show_tools() {
 # _upgrade_self  -> fetches latest version from GitHub, replaces if newer
 
 _init_self(){
+    show_banner
     PREFERRED=("/usr/local/bin" "/usr/bin" "/bin" "/usr/local/sbin")
     INSTALL_DIR=""
 
@@ -280,6 +282,7 @@ _init_self(){
 }
 
 _purge_self() {
+    show_banner
     PREFERRED=("/usr/local/bin" "/usr/bin" "/bin" "/usr/local/sbin")
 
     for dir in "${PREFERRED[@]}"; do
@@ -297,6 +300,7 @@ _purge_self() {
 }
 
 _upgrade_self() {
+    show_banner
     PREFERRED=("/usr/local/bin" "/usr/bin" "/bin" "/usr/local/sbin")
     DEST=""
 
